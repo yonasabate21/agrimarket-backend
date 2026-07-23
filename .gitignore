@@ -1,0 +1,11 @@
+# Environment variables (Secrets)
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# Logs & OS files
+*.log
+.DS_Store
+.vscode/
