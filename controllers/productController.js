@@ -5,9 +5,8 @@ const asyncHandler = require('../middleware/asyncHandler');
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  // Populate the 'farmer' reference to fetch vendor name, phone, and location
   const products = await Product.find({})
-    .populate('farmer', 'name phone')
+    .populate('farmer', 'name phone email')
     .sort({ createdAt: -1 });
 
   res.status(200).json(products);
@@ -17,14 +16,32 @@ const getProducts = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private (Farmer only)
 const createProduct = asyncHandler(async (req, res) => {
-  const { cropName, quantity, price, location } = req.body;
+  // Read fields flexible to both naming conventions (title or cropName)
+  const { title, cropName, category, quantity, price, location, phone, image, description } = req.body;
+
+  const resolvedCropName = cropName || title;
+
+  if (!resolvedCropName) {
+    res.status(400);
+    throw new Error('Please provide a title/cropName for the listing');
+  }
+
+  // Ensure user is attached from auth middleware
+  if (!req.user) {
+    res.status(401);
+    throw new Error('User authentication required');
+  }
 
   const product = new Product({
     farmer: req.user._id,
-    cropName,
-    quantity,
-    price,
+    cropName: resolvedCropName,
+    category: category || 'Cereals',
+    quantity: Number(quantity) || 0,
+    price: Number(price) || 0,
     location,
+    phone,
+    image,
+    description,
   });
 
   const createdProduct = await product.save();
@@ -42,8 +59,14 @@ const deleteProduct = asyncHandler(async (req, res) => {
     throw new Error('Listing not found');
   }
 
-  // Auth gate: Ensure the user deleting is the farmer who owns the listing
-  if (product.farmer.toString() !== req.user._id.toString()) {
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Authentication required');
+  }
+
+  // Ensure owner check works safely
+  const farmerId = product.farmer ? product.farmer.toString() : null;
+  if (farmerId !== req.user._id.toString()) {
     res.status(403);
     throw new Error('Unauthorized action. You do not own this listing.');
   }

@@ -8,6 +8,7 @@ const getQuestions = asyncHandler(async (req, res) => {
   const questions = await Question.find({})
     .populate('farmer', 'name')
     .sort({ createdAt: -1 });
+
   res.status(200).json(questions);
 });
 
@@ -15,12 +16,19 @@ const getQuestions = asyncHandler(async (req, res) => {
 // @route   POST /api/questions
 // @access  Private (Farmer only)
 const createQuestion = asyncHandler(async (req, res) => {
-  const { title, description } = req.body;
+  const { title, category, content, description } = req.body;
+  const inquiryDetails = description || content;
+
+  if (!title || !inquiryDetails) {
+    res.status(400);
+    throw new Error('Please provide both a title and inquiry details.');
+  }
 
   const question = new Question({
     farmer: req.user._id,
     title,
-    description,
+    category: category || 'General Agriculture',
+    description: inquiryDetails,
     answers: [],
   });
 
@@ -32,7 +40,14 @@ const createQuestion = asyncHandler(async (req, res) => {
 // @route   POST /api/questions/:id/answers
 // @access  Private (Expert only)
 const addAnswer = asyncHandler(async (req, res) => {
-  const { answerText } = req.body;
+  const { answerText, content } = req.body;
+  const replyText = answerText || content;
+
+  if (!replyText) {
+    res.status(400);
+    throw new Error('Answer text is required.');
+  }
+
   const question = await Question.findById(req.params.id);
 
   if (!question) {
@@ -42,12 +57,11 @@ const addAnswer = asyncHandler(async (req, res) => {
 
   const newAnswer = {
     expert: req.user._id,
-    expertName: req.user.name,
-    answerText,
+    expertName: req.user.name || 'Extension Specialist',
+    answerText: replyText,
     createdAt: new Date(),
   };
 
-  // Push answer directly into the document nested array
   question.answers.push(newAnswer);
   await question.save();
 
