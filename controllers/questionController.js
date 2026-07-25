@@ -59,11 +59,14 @@ const addAnswer = asyncHandler(async (req, res) => {
     expert: req.user._id,
     expertName: req.user.name || 'Extension Specialist',
     answerText: replyText,
+    content: replyText, // 💡 Saves under both keys so frontend always displays text
     createdAt: new Date(),
   };
 
   question.answers.push(newAnswer);
-  await question.save();
+  
+  // 🔧 FIXED: Single save with validateModifiedOnly to bypass missing top-level field errors
+  await question.save({ validateModifiedOnly: true });
 
   res.status(201).json({ message: 'Diagnostic answer appended', question });
 });
