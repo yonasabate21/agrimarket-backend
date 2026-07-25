@@ -1,9 +1,9 @@
 const Product = require('../models/Product');
 const asyncHandler = require('../middleware/asyncHandler');
 
-// @desc    Fetch all active listings
-// @route   GET /api/products
-// @access  Public
+//  Fetch all active listings
+//  GET /api/products
+//  Public
 const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({})
     .populate('farmer', 'name phone email')
@@ -12,9 +12,9 @@ const getProducts = asyncHandler(async (req, res) => {
   res.status(200).json(products);
 });
 
-// @desc    Insert a new bulk crop listing
-// @route   POST /api/products
-// @access  Private (Farmer only)
+//  Insert a new bulk crop listing
+//  POST /api/products
+//  Private (Farmer only)
 const createProduct = asyncHandler(async (req, res) => {
   // Read fields flexible to both naming conventions (title or cropName)
   const { title, cropName, category, quantity, price, location, phone, image, description } = req.body;
@@ -48,9 +48,9 @@ const createProduct = asyncHandler(async (req, res) => {
   res.status(201).json(createdProduct);
 });
 
-// @desc    Permanently delete a marketplace listing
-// @route   DELETE /api/products/:id
-// @access  Private (Owner only)
+//   Permanently delete a marketplace listing
+//   DELETE /api/products/:id
+//   Private (Owner only)
 const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 

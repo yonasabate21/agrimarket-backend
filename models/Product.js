@@ -5,7 +5,7 @@ const productSchema = new mongoose.Schema(
     farmer: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User', // Matches your User model name
+      ref: 'User', // Matches  User model name
     },
     cropName: {
       type: String,

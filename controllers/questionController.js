@@ -1,9 +1,9 @@
 const Question = require('../models/Question');
 const asyncHandler = require('../middleware/asyncHandler');
 
-// @desc    Retrieve chronological list of inquiries
-// @route   GET /api/questions
-// @access  Public
+//   Retrieve chronological list of inquiries
+//   GET /api/questions
+//   Public
 const getQuestions = asyncHandler(async (req, res) => {
   const questions = await Question.find({})
     .populate('farmer', 'name')
@@ -12,9 +12,9 @@ const getQuestions = asyncHandler(async (req, res) => {
   res.status(200).json(questions);
 });
 
-// @desc    Publish a technical agricultural problem
-// @route   POST /api/questions
-// @access  Private (Farmer only)
+//   Publish a technical agricultural problem
+//   POST /api/questions
+//   Private (Farmer only)
 const createQuestion = asyncHandler(async (req, res) => {
   const { title, category, content, description } = req.body;
   const inquiryDetails = description || content;
@@ -36,9 +36,9 @@ const createQuestion = asyncHandler(async (req, res) => {
   res.status(201).json(createdQuestion);
 });
 
-// @desc    Append diagnostic advice to an inquiry
-// @route   POST /api/questions/:id/answers
-// @access  Private (Expert only)
+//  Append diagnostic advice to an inquiry
+//  POST /api/questions/:id/answers
+//  Private (Expert only)
 const addAnswer = asyncHandler(async (req, res) => {
   const { answerText, content } = req.body;
   const replyText = answerText || content;

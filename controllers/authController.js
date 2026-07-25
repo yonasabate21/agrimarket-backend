@@ -3,9 +3,9 @@ const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const asyncHandler = require('../middleware/asyncHandler');
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
+//   Register a new user
+//   POST /api/auth/register
+//   Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, role, phone } = req.body;
 
